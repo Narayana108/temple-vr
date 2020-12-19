@@ -1,0 +1,249 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Temple VR</title>
+    <meta name="Temple VR" content="Temple Hack VR — Networked-Aframe">
+
+    <!-- base networked-aframe packegs -->
+    <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
+
+    <!-- AFrame extras -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <!-- Local build -->
+    <script src="/build.js"></script>
+    <!-- No idea what this is -->
+    <script>window.NAF || document.write('<script src="https://unpkg.com/networked-aframe/dist/networked-aframe.min.js">\x3C/script>')</script>
+
+    <!-- Randomize head colour -->
+    <script src="https://unpkg.com/aframe-randomizer-components@^3.0.1/dist/aframe-randomizer-components.min.js"></script>
+    <!-- Make sure people dont spawn on top of each other -->
+    <script src="/js/spawn-in-circle.component.js"></script>
+
+    <!-- Physics -->
+    <script src="https://unpkg.com/aframe-physics-system@1.4.0/dist/aframe-physics-system.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <script>
+      // Handle mouse click
+      AFRAME.registerComponent('scale-on-mouseenter', {
+        schema: {
+          to: {default: '2.5 2.5 2.5', type: 'vec3'}
+        },
+
+        init: function () {
+          var data = this.data;
+          var el = this.el;
+          this.el.addEventListener('mouseenter', function () {
+            el.object3D.scale.copy(data.to);
+          });
+        }
+      });
+    </script>
+
+    <!-- enable physics networking and audio -->
+    <a-scene physics networked-scene="
+      room: temple;
+      debug: true;
+      adapter: webrtc;
+      audio: true;
+    ">
+
+      <a-assets>
+
+        <!-- Templates -->
+        <img id="skyTexture" src="varaha-mandir.jpg">
+        <!--<img id="skyTexture" src="ram_mandir.jpg">-->
+        <img id="groundTexture" src="flower_of_life_small.jpg">
+        <img id="boxTexture1" src="box2.jpg">
+        <img id="boxTexture2" src="snakes.jpg">
+        <img id="hieroglyph1" src="hieroglyph1.jpg">
+
+        <!--<a-asset-item id="suntemple" src="./assets/suntemple/scene.gltf"></a-asset-item>-->
+        <a-asset-item id="ganesh" src="./assets/jai_ganesh/scene.gltf"></a-asset-item>
+        <a-asset-item id="buddha" src="./assets/buddha/scene.gltf"></a-asset-item>
+        <a-asset-item id="4d_knot" src="./assets/4d_knot/scene.gltf"></a-asset-item>
+        <a-asset-item id="nandi" src="./assets/nandi2/scene.gltf"></a-asset-item>
+
+
+        <!-- Avatar -->
+        <template id="avatar-template">
+          <a-entity class="avatar" networked-audio-source>
+            <a-sphere class="head"
+              random-color
+              scale="0.45 0.5 0.4"
+            ></a-sphere>
+            <a-entity class="face"
+              position="0 0.05 0"
+            >
+              <a-sphere class="eye"
+                color="#efefef"
+                position="0.16 0.1 -0.35"
+                scale="0.12 0.12 0.12"
+              >
+                <a-sphere class="pupil"
+                  color="#000"
+                  position="0 0 -1"
+                  scale="0.2 0.2 0.2"
+                ></a-sphere>
+              </a-sphere>
+              <a-sphere class="eye"
+                color="#efefef"
+                position="-0.16 0.1 -0.35"
+                scale="0.12 0.12 0.12"
+              >
+                <a-sphere class="pupil"
+                  color="#000"
+                  position="0 0 -1"
+                  scale="0.2 0.2 0.2"
+                ></a-sphere>
+              </a-sphere>
+            </a-entity>
+          </a-entity>
+        </template>
+
+        <!-- /Templates -->
+      </a-assets>
+
+      <!-- Spawns players -->
+      <a-entity id="player"
+        networked="template:#avatar-template;attachTemplateToLocal:false;"
+        camera
+        position="0 1.6 0"
+        spawn-in-circle="radius:3"
+        wasd-controls look-controls
+        >
+        <a-sphere class="head"
+          visible="false"
+          random-color
+        ></a-sphere>
+      </a-entity>
+
+    </a-assets>
+
+      <!-- Sky and Ground -->
+      <a-sky src="#skyTexture"></a-sky>
+      <!--<a-entity gltf-model="#suntemple"></a-entity>-->
+
+      <a-plane src="#groundTexture" rotation="-90 0 0" width="65" height="65"
+        repeat="10 10" static-body></a-plane>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#445451"></a-light>
+      <a-light type="point" intensity="2" position="2 4 4"></a-light>
+
+      <!-- Shows cursor dot -->
+      <a-camera>
+        <a-cursor></a-cursor>
+      </a-camera>
+
+      <!-- Objects/Shapes -->
+      <a-ocean color="#6630FF" position="0 2 -5" width="5" depth="4" density="17" speed="3"></a-ocean>
+      <!-- Bug - Mouse click not working-->
+      <a-box
+        src="#boxTexture1"
+        position="0 2 -5"
+        rotation="0 45 45"
+        scale="2 2 2"
+        animation__position="property: object3D.position.y; to: 2.2; dir: alternate; dur: 2000; loop: true"
+        animation__mouseenter="property: scale; to: 2.3 2.3 2.3; dur: 300; startEvents: mouseenter"
+        animation__mouseleave="property: scale; to: 2 2 2; dur: 300; startEvents: mouseleave"></a-box>
+
+
+      <a-box src="#boxTexture2" position="-1 21 -3" rotation="0 45 0" 
+        scale="0.8 0.8 0.8" dynamic-body></a-box>
+      <a-torus src="#hieroglyph1" color="#6F7480" arc="180" radius="30" 
+        radius-tubular="0.1"></a-torus>
+
+      <a-dodecahedron src="./hierometal.png" radius="1" position="5 5 -5"></a-dodecahedron>
+      <a-sphere src="./pat1.jpg" radius="1" position="-3 7 -5"></a-sphere>
+      <a-tetrahedron src="./rock1.jpg" radius="1" position="0 10 0"></a-tetrahedron>
+      <a-icosahedron src="./rock1.jpg" position="4 7 0"> </a-icosahedron>
+      <a-torus-knot src="#hieroglyph1" arc="180" p="2" q="7" radius="5" 
+        position="0 70 0"
+        radius-tubular="0.1"></a-torus-knot>
+
+
+      <!-- Status -->
+      <a-entity gltf-model="#buddha"
+        position="0 10 -30"          
+        rotation="0 180 0"
+        scale="0.7 0.7 0.7"></a-entity>
+
+      <a-entity gltf-model="#ganesh"
+        position="0 -5 40"          
+        rotation="0 180 0"
+        scale="0.5 0.5 0.5"></a-entity>
+
+      <a-entity gltf-model="#nandi"
+        position="30 1 -30"          
+        rotation="0 0 0"
+        scale="0.1 0.1 0.1"></a-entity>
+
+      <a-entity gltf-model="#nandi"
+        position="-30 1 30"          
+        rotation="0 180 0"
+        scale="0.1 0.1 0.1"></a-entity>
+
+      <a-entity gltf-model="#nandi"
+        position="30 1 30"          
+        rotation="0 270 0"
+        scale="0.1 0.1 0.1"></a-entity>
+
+      <a-entity gltf-model="#nandi"
+        position="-30 1 -30"          
+        rotation="0 90 0"
+        scale="0.1 0.1 0.1"></a-entity>
+
+      <a-entity gltf-model="#4d_knot"
+        position="0 18 0"          
+        rotation="70 70 130"
+        scale="0.4 0.4 0.4"></a-entity>
+
+
+      <!-- Background Sound -->
+      <a-sound src="./assets/om2.mp3" 
+        volume="0.4"
+        autoplay="true"
+        loop="true"
+        position="0 2 -5"></a-sound>
+
+    </a-scene>
+
+
+    <script>
+      // On mobile remove elements that are resource heavy
+      var isMobile = AFRAME.utils.device.isMobile();
+
+      if (isMobile) {
+        var particles = document.getElementById('particles');
+        particles.parentNode.removeChild(particles);
+      }
+    </script>
+
+    <script>
+      // Define custom schema for syncing avatar color, set by random-color
+      NAF.schemas.add({
+        template: '#avatar-template',
+        components: [
+          'position',
+          'rotation',
+          {
+            selector: '.head',
+            component: 'material',
+            property: 'color'
+          }
+        ]
+      });
+
+      // Called by Networked-Aframe when connected to server
+      function onConnect () {
+        console.log("onConnect", new Date());
+      }
+    </script>
+  </body>
+</html>
