@@ -1,6 +1,6 @@
 # Temple VR
-
 Build this at an internal Rehive hackathon.
+Multi player and voice chat is included.
 
 ## Local development
 `npm run watch`
