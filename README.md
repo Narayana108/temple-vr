@@ -8,3 +8,6 @@ Build this at an internal Rehive hackathon.
 
 ## Prod
 `npm run start`
+
+## Preview
+[Temple VR preview](./preview.png)
