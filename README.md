@@ -9,5 +9,7 @@ Build this at an internal Rehive hackathon.
 ## Prod
 `npm run start`
 
+*Better to run with PM2 and nginx*
+
 ## Preview
-[Temple VR preview](./preview.png)
+![Temple VR preview](./preview.png)
